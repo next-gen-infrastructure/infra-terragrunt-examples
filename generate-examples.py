@@ -6,11 +6,9 @@ from shutil import which
 
 import git
 
-from cere.devops.scripts import logger
-from cere.devops.scripts.gitcontext import get_repo_name, \
-    get_repo_version
-from cere.devops.scripts.processvariables import \
-    process_examples
+from org.nextgeninfrastructure.scripts import logger
+from org.nextgeninfrastructure.scripts.gitcontext import get_repo_name, get_repo_version
+from org.nextgeninfrastructure.scripts.processvariables import process_examples
 
 
 def collect_modules() -> List[str]:
