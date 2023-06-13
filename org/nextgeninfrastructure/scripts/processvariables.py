@@ -6,6 +6,8 @@ from typing import Dict, Tuple, List
 import git
 from jinja2 import Template
 
+from org.nextgeninfrastructure.scripts import logger, exceptions
+
 GLOBAL_FILE = 'global-variables.tf'
 EXAMPLES_FOLDER = 'examples'
 SEPARATOR = '# ' + '-' * 117
@@ -203,7 +205,6 @@ def process_dependency_variable(name: str, config: Dict[str, object],
         logger.warning(f'{module_location} variable {name} does not have description')
     description = config.get('description', '').strip()
 
-    # dependency_location = os.path.abspath(description)
     dependency_location = os.path.join(repo_path, description)
 
     dependency_config = json.loads(
@@ -230,10 +231,18 @@ def process_variable(name: str, config: Dict[str, object],
     tm = Template('''\
 {{ separator }}
 {% for desc_line in description -%}
-{%- if desc_line != "" -%}# {{ desc_line }}{%- else -%}#{%- endif %}
+    {%- if desc_line != "" -%}
+        # {{ desc_line }}
+    {%- else -%}
+        #
+    {%- endif %}
 {% endfor -%}
 {{ separator }}
-{% if is_optional -%}# {% endif %}{{ variable }} = {%- if default_value %} {{ default_value }}{%- endif %}
+{% if is_optional -%}
+    # {{ variable }} = {{ default_value }}
+{%- else -%}
+    {{ variable }} =
+{%- endif %}
 ''')
     return tm.render(
         variable=name,

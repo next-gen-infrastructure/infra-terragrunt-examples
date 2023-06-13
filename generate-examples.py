@@ -47,6 +47,7 @@ if __name__ == "__main__":
     for location in module_locations:
         logger.info(f'Processing {location}...')
         process_examples(gitrepo, repo_path, repo_name, repo_version, location)
-    if len(gitrepo.index.diff()) > 0:
-        logger.info('Committing change to the repository')
-        gitrepo.index.commit(f'Update examples: {repo_version}')
+
+    # if len(gitrepo.index.diff()) > 0:
+    #     logger.info('Committing change to the repository')
+    #     gitrepo.index.commit(f'Update examples: {repo_version}')
