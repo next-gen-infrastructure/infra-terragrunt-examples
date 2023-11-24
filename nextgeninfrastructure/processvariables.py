@@ -6,7 +6,7 @@ from typing import Dict, Tuple, List
 import git
 from jinja2 import Template
 
-from org.nextgeninfrastructure.scripts import logger, exceptions
+from nextgeninfrastructure import logger, exceptions
 
 GLOBAL_FILE = 'global-variables.tf'
 EXAMPLES_FOLDER = 'examples'

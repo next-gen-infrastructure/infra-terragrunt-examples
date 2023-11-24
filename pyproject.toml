@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "infra-terragrunt-examples"
+authors = [
+  {name = "Alexander Dobrodey", email = "alexander.dobrodey@gmail.com"},
+]
+description = "Generation of terragrunt examples from variables in terraform module repositories"
+readme = "README.rst"
+requires-python = ">=3.9"
+dependencies = [
+  "GitPython",
+  "jinja2",
+]
+dynamic = ["version"]
+
+[project.scripts]
+infra-terragrunt-examples = "nextgeninfrastructure.generate:main"

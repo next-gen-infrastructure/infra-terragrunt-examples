@@ -6,14 +6,14 @@ from shutil import which
 
 import git
 
-from org.nextgeninfrastructure.scripts import logger
-from org.nextgeninfrastructure.scripts.gitcontext import get_repo_name, get_repo_version
-from org.nextgeninfrastructure.scripts.processvariables import process_examples
+from nextgeninfrastructure import logger
+from nextgeninfrastructure.gitcontext import get_repo_name, get_repo_version
+from nextgeninfrastructure.processvariables import process_examples
 
 
-def collect_modules() -> List[str]:
+def collect_modules(repository: str) -> List[str]:
     modules = []
-    for root, dirs, files in os.walk(repo_path):
+    for root, dirs, files in os.walk(repository):
         if '.terraform' not in root:
             for d in dirs:
                 if os.path.exists(
@@ -32,7 +32,7 @@ def check_dependencies() -> None:
         exit(1)
 
 
-if __name__ == "__main__":
+def main() -> None:
     check_dependencies()
     repo_path = os.getcwd()
     gitrepo = git.Repo.init(os.getcwd())
@@ -42,12 +42,15 @@ if __name__ == "__main__":
     if len(sys.argv) == 2:
         module_locations = [sys.argv[1]]
     else:
-        module_locations = collect_modules()
+        module_locations = collect_modules(repo_path)
 
     for location in module_locations:
         logger.info(f'Processing {location}...')
         process_examples(gitrepo, repo_path, repo_name, repo_version, location)
 
-    # if len(gitrepo.index.diff()) > 0:
-    #     logger.info('Committing change to the repository')
-    #     gitrepo.index.commit(f'Update examples: {repo_version}')
+    if len(gitrepo.index.diff()) > 0:
+        logger.info('Committing change to the repository')
+        gitrepo.index.commit(f'Update examples: {repo_version}')
+
+if __name__ == "__main__":
+    sys.exit(main())
