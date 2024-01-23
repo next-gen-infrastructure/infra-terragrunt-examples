@@ -30,6 +30,8 @@ def get_repo_version(repo) -> str:
               '\n4 | Patch version'
               )
         next_release = int(input(f'Plan next release [0]: ') or 0) - 2
+        if next_release == -1:
+            return 'main'
         if next_release >= 0:
             version[next_release] = str(int(version[next_release]) + 1)
             while next_release < len(version) - 1:
