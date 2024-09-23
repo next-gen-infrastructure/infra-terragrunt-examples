@@ -6,7 +6,8 @@ from typing import Dict, Tuple, List
 import git
 from jinja2 import Template
 
-from nextgeninfrastructure import logger, exceptions
+from nextgeninfrastructure import logger, exceptions, encoder
+from nextgeninfrastructure.encoder import TerraformJSONEncoder
 
 GLOBAL_FILE = 'global-variables.tf'
 EXAMPLES_FOLDER = 'examples'
@@ -228,9 +229,24 @@ def process_variable(name: str, config: Dict[str, object],
                      module_location: str) -> str:
     if 'description' not in config:
         logger.warning(f'{module_location} variable {name} does not have description')
-    description = config.get('description', '').strip()
+
+    variable_type = str(config['type'])
+    description = str(config.get('description', '')).strip()
     is_optional = config['required'] is False
     default_value = config.get('default', None)
+    default_value_str = ''
+    if default_value is None and variable_type.startswith('object'):
+        default_value_items = []
+        for property in variable_type.split('\n')[1:-1]:
+            if property == '':
+                continue
+            property_type = property.split('=')[1].strip().strip(')')
+            if property_type.startswith('optional') and ',' in property_type:
+                property_default_value = property_type.split(',', 1)[1].strip()
+                default_value_items.append(f'# {property.split("=")[0].strip()} = {property_default_value}')
+            else:
+                default_value_items.append(f'{property.split("=")[0].strip()} = ')
+        default_value_str = '{\n  ' + '\n  '.join(default_value_items) + '\n}'
     tm = Template('''\
 {{ separator }}
 {% for desc_line in description -%}
@@ -244,7 +260,7 @@ def process_variable(name: str, config: Dict[str, object],
 {% if is_optional -%}
     # {{ variable }} = {{ default_value }}
 {%- else -%}
-    {{ variable }} =
+    {{ variable }} = {{ default_value }}
 {%- endif %}
 ''')
     return tm.render(
@@ -255,7 +271,8 @@ def process_variable(name: str, config: Dict[str, object],
             default_value,
             sort_keys=True,
             indent=2,
-            separators=(',', '= ')
-        ).replace('\n', '\n# ') if is_optional else None,
+            separators=(',', ' = '),
+            cls=TerraformJSONEncoder
+        ).replace('\n', '\n# ') if is_optional else default_value_str,
         separator=SEPARATOR
     )
