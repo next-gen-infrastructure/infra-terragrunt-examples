@@ -81,32 +81,35 @@ def process_examples(repo: git.Repo, repo_path: str,
 
     name_variables = f'''\
 {SEPARATOR}
-# Name prefix for the created resources(defaults "")
+# Components of the name
 #
-# Resource name will be <name_prefix>-<env>-<name_suffix>-<type of resource>
+# * product: Name of the product, application, team. E.g. "log"
+# * purpose: Purpose of the resource. E.g. "upload-images"
+# * env: Environment name. E.g. "dev", "stg", "prod"
+# * separator: Name separator (defaults "-")
 #
-# Example:
-# * name_prefix = "api"
-{SEPARATOR}
-# name_prefix = ""
-
-{SEPARATOR}
-# Name suffix for the created resources(defaults "")
-#
-# Resource name will be <name_prefix>-<env>-<name_suffix>-<type of resource>
+# Resource name will be <org>-<product>-<purpose>-<env>( | -<type of resource>)
 #
 # Example:
-# * name_suffix = "v2"
+# * name = {{
+#   product = "log"
+#   purpose = "upload-images"
+#   separator = "_"
+# }}
 {SEPARATOR}
-# name_suffix = ""
+name = {{
+  product =
+  purpose =
+  # separator = "-"
+}}
 
 {SEPARATOR}
 # Map of the custom resource tags (defaults {{}})
 #
 # Example:
 # * tags = {{
-#     Foo = "Bar"
-#   }}
+#   Foo = "Bar"
+# }}
 {SEPARATOR}
 # tags = {{}}\
 '''

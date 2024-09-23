@@ -24,15 +24,19 @@ def get_repo_version(repo) -> str:
 
         print(f'Current version is {version}. Next release will be:'
               '\n0 | No changes'
-              '\n1 | Main branch'
-              '\n2 | Major version'
-              '\n3 | Minor version'
-              '\n4 | Patch version'
+              '\n1 | Develop branch'
+              '\n2 | Main branch'
+              '\n3 | Major version'
+              '\n4 | Minor version'
+              '\n5 | Patch version'
               )
-        next_release = int(input(f'Plan next release [0]: ') or 0) - 2
-        if next_release == -1:
+        next_release = int(input(f'Plan next release [0]: ') or 0)
+        if next_release == 1:
+            return 'develop'
+        if next_release == 2:
             return 'main'
-        if next_release >= 0:
+        if next_release >= 3:
+            next_release = next_release - 3
             version[next_release] = str(int(version[next_release]) + 1)
             while next_release < len(version) - 1:
                 next_release += 1
