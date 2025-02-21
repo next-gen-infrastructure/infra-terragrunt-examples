@@ -1,3 +1,5 @@
+from nextgeninfrastructure import exceptions
+
 class Color:
     PURPLE = '\033[1;35;48m'
     CYAN = '\033[1;36;48m'
@@ -21,3 +23,4 @@ def warning(message: str) -> None:
 
 def fatal(message: str) -> None:
     print(f"{Color.RED}[FATAL] {message}{Color.END}")
+    raise exceptions.ExamplesException(message)

@@ -1,12 +1,13 @@
 import json
 import os
+import re
 import subprocess
-from typing import Dict, Tuple, List
+from typing import Dict, Tuple, List, Optional
 
 import git
 from jinja2 import Template
 
-from nextgeninfrastructure import logger, exceptions, encoder
+from nextgeninfrastructure import logger
 from nextgeninfrastructure.encoder import TerraformJSONEncoder
 
 GLOBAL_FILE = 'global-variables.tf'
@@ -18,7 +19,7 @@ NEW_LINE = '\n'
 def process_examples(repo: git.Repo, repo_path: str,
                      repo_name: str, repo_version: str,
                      module_location: str,
-                     write=True, existing_config=None) -> str:
+                     write=True) -> Optional[str]:
     full_path = os.path.join(repo_path, module_location)
     examples_location = os.path.join(full_path, EXAMPLES_FOLDER)
 
@@ -48,11 +49,11 @@ def process_examples(repo: git.Repo, repo_path: str,
         x for x in module_variables
         if 'sensitive' in x[1]['description'] or 'sensitive' in x[1].keys()
     ]
-    existing_config = [x for x in existing_config.items() if x] if existing_config else None
-    terragrunt_module_variables = '\n\n'.join([
+    # existing_config = [x for x in existing_config.items() if x] if existing_config else None
+    terragrunt_module_variables = '\n'.join([
         process_variable(var[0], var[1], full_path) for var in common_variables
     ])
-    terraform_sensitive_module_variables = '\n\n'.join([
+    terraform_sensitive_module_variables = '\n'.join([
         process_variable(var[0], var[1], full_path) for var in sensitive_variables
     ]) + '\n'
 
@@ -84,22 +85,18 @@ def process_examples(repo: git.Repo, repo_path: str,
 {SEPARATOR}
 # Components of the name
 #
-# * product: Name of the product, application, team. E.g. "log"
 # * purpose: Purpose of the resource. E.g. "upload-images"
-# * env: Environment name. E.g. "dev", "stg", "prod"
 # * separator: Name separator (defaults "-")
 #
 # Resource name will be <org>-<product>-<purpose>-<env>( | -<type of resource>)
 #
 # Example:
 # * name = {{
-#   product = "log"
 #   purpose = "upload-images"
 #   separator = "_"
 # }}
 {SEPARATOR}
 name = {{
-  product =
   purpose =
   # separator = "-"
 }}
@@ -143,14 +140,14 @@ def indent_string(string: str, indent: str) -> str:
 
 
 def generate_terragrunt_hcl(
-    repo_name,
-    repo_version,
-    module_location,
-    name_variables,
-    terragrunt_module_variables,
-    terragrunt_dependency_objects_str,
-    terragrunt_dependency_variables_str
-):
+    repo_name: str,
+    repo_version: str,
+    module_location: str,
+    name_variables: str,
+    terragrunt_module_variables: str,
+    terragrunt_dependency_objects_str: str,
+    terragrunt_dependency_variables_str: str
+) -> str:
     inputs = '\n\n'.join(
         filter(
             None,
@@ -207,7 +204,7 @@ def process_dependency_variable(name: str, config: Dict[str, object],
                                 module_location: str) -> Tuple[str, str]:
     if 'description' not in config:
         logger.warning(f'{module_location} variable {name} does not have description')
-    description = config.get('description', '').strip()
+    description = str(config.get('description', '')).strip()
 
     dependency_location = os.path.join(repo_path, description)
 
@@ -216,63 +213,91 @@ def process_dependency_variable(name: str, config: Dict[str, object],
     )['outputs']['dependency']
     dependency_object = name.replace('_dependency', '')
     if 'description' not in dependency_config:
-        raise exceptions.ExamplesException(
-            f"Description was not found for {name} in {dependency_location}/{dependency_config['pos']['filename']}"
-        )
+        logger.fatal(
+            f"Description was not found for {name} in {dependency_location}/{dependency_config['pos']['filename']}")
+
     dependency_definition = dependency_config['description']
     input_variable = f'{name} = try(dependency.{dependency_object}.outputs.dependency, {{}})'
 
     return dependency_definition, input_variable
 
 
-def process_variable(name: str, config: Dict[str, object],
-                     module_location: str) -> str:
+def extract_literal(description: str) -> (str, Optional[str]):
+    """Extracts literal values from description if present."""
+    match = re.search(r"(.*)\s*<Literal>\s*(.*)</Literal>", description, re.DOTALL)
+    if match:
+        return match.group(1).strip(), match.group(2).strip()
+    return description, None
+
+
+def generate_object_defaults(variable_type: str) -> str:
+    """Generates default values for object-type variables."""
+    default_value_items = []
+    for obj_property in variable_type.split('\n')[1:-1]:
+        if not obj_property or '=' not in obj_property:
+            continue
+        key, value = map(str.strip, obj_property.split('=', 1))
+        property_type = value.strip(')')
+
+        if property_type.startswith('optional') and ',' in property_type:
+            default_value = property_type.split(',', 1)[1].strip()
+            default_value_items.append(f'# {key} = {default_value}')
+        else:
+            default_value_items.append(f'{key} =')
+
+    return '{\n  ' + '\n '.join(default_value_items) + '\n}'
+
+
+def process_variable(name: str, config: Dict[str, object], module_location: str) -> str:
     if 'description' not in config:
         logger.warning(f'{module_location} variable {name} does not have description')
 
     variable_type = str(config['type'])
     description = str(config.get('description', '')).strip()
-    is_optional = config['required'] is False
-    default_value = config.get('default', None)
+    description, literal_value = extract_literal(description)
+
+    is_optional = config.get('required', True) is False
+    is_literal = literal_value is not None
+    default_value = config.get('default')
+
+    # Generate default values for object type variables
     default_value_str = ''
     if default_value is None and variable_type.startswith('object'):
-        default_value_items = []
-        for property in variable_type.split('\n')[1:-1]:
-            if property == '':
-                continue
-            property_type = property.split('=')[1].strip().strip(')')
-            if property_type.startswith('optional') and ',' in property_type:
-                property_default_value = property_type.split(',', 1)[1].strip()
-                default_value_items.append(f'# {property.split("=")[0].strip()} = {property_default_value}')
-            else:
-                default_value_items.append(f'{property.split("=")[0].strip()} = ')
-        default_value_str = '{\n  ' + '\n  '.join(default_value_items) + '\n}'
-    tm = Template('''\
-{{ separator }}
-{% for desc_line in description -%}
-    {%- if desc_line != "" -%}
-        # {{ desc_line }}
-    {%- else -%}
-        #
-    {%- endif %}
-{% endfor -%}
-{{ separator }}
-{% if is_optional -%}
-    # {{ variable }} = {{ default_value }}
-{%- else -%}
-    {{ variable }} = {{ default_value }}
-{%- endif %}
-''')
-    return tm.render(
-        variable=name,
-        description=description.split('\n'),
-        is_optional=is_optional,
-        default_value=json.dumps(
+        default_value_str = generate_object_defaults(variable_type)
+
+    # Format default values for optional variables
+    formatted_default = (
+        json.dumps(
             default_value,
             sort_keys=True,
             indent=2,
             separators=(',', ' = '),
             cls=TerraformJSONEncoder
-        ).replace('\n', '\n# ') if is_optional else default_value_str,
+        ).replace('\n', '\n# ')
+        if is_optional else default_value_str
+    )
+
+    # Jinja2 Template for rendering
+    template = Template('''\
+{{ separator }}
+{% for line in description -%}
+    {%- if line %}# {{ line }}{% else %}#{% endif %}
+{% endfor -%}
+{{ separator }}
+{% if is_literal -%}
+    {{ variable }} = {{ literal_value }}
+{% elif is_optional -%}
+    # {{ variable }} = {{ default_value }}
+{% else -%}
+    {{ variable }} = {{ default_value or '' }}
+{% endif %}
+''')
+    return template.render(
+        variable=name,
+        description=description.split('\n'),
+        is_optional=is_optional,
+        is_literal=is_literal,
+        literal_value=literal_value,
+        default_value=formatted_default,
         separator=SEPARATOR
     )

@@ -29,8 +29,6 @@ def collect_modules(repository: str) -> List[str]:
 def check_dependencies() -> None:
     if which("terraform-config-inspect") is None:
         logger.fatal(f'Please install terraform configuration inspection:\ngo install github.com/hashicorp/terraform-config-inspect@latest')
-        exit(1)
-
 
 def main() -> None:
     check_dependencies()
