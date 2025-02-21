@@ -47,4 +47,4 @@ def get_repo_version(repo) -> str:
     #             version[next_release] = '0'
     #         return module_name + '.'.join(version)
     #     return tag
-    return 'main'
+    return "main"

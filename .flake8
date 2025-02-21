@@ -1,0 +1,16 @@
+[flake8]
+ignore = E203, E231, E266, E501, W503
+exclude =
+  # Exclude generated code.
+  **/proto/**
+  **/gapic/**
+  **/services/**
+  **/types/**
+  *_pb2.py
+
+  # Standard linting exemptions.
+  **/.nox/**
+  __pycache__,
+  .git,
+  *.pyc,
+  conf.py
