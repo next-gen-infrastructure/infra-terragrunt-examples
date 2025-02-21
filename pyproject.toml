@@ -1,20 +1,44 @@
 [build-system]
-requires = ["setuptools", "setuptools-scm"]
+requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "infra-terragrunt-examples"
-authors = [
-  {name = "Alexander Dobrodey", email = "alexander.dobrodey@gmail.com"},
-]
-description = "Generation of terragrunt examples from variables in terraform module repositories"
-readme = "README.rst"
-requires-python = ">=3.9"
+version = "0.0.0"  # This can be replaced dynamically during build if necessary
+description = "Generate example terragrunt.hcl files for the terraform modules from the variable descriptions"
+authors = [{ name = "NextGen Infrastructure", email = "8377544+ADobrodey@users.noreply.github.com" }]
+license = { text = "MIT License" }
+url = "https://github.com/next-gen-infrastructure/infra-terragrunt-examples"
 dependencies = [
-  "GitPython",
   "jinja2",
+  "GitPython"
 ]
-dynamic = ["version"]
+python-requires = ">=3.9"
+
+[project.classifiers]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: Apache Software License",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Operating System :: OS Independent",
+  "Topic :: Internet"
+]
+
+[tool.setuptools.packages]
+find = true
+
+[tool.setuptools]
+zip-safe = false
+include-package-data = true
+
+[tool.setuptools.package-dir]
+# If needed, you can set custom package directories, or leave empty
 
 [project.scripts]
 infra-terragrunt-examples = "nextgeninfrastructure.generate:main"

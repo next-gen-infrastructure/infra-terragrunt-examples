@@ -15,7 +15,9 @@ version = version["__version__"]
 release_status = "Development Status :: 4 - Beta"
 dependencies = ["jinja2", "GitPython"]
 entry_points = {
-    "console_scripts": ["generate-examples=nextgeninfrastructure.generate:main"],
+    "console_scripts": [
+        "infra-terragrunt-examples=nextgeninfrastructure.generate:main"
+    ],
 }
 
 package_root = os.path.abspath(os.path.dirname(__file__))
