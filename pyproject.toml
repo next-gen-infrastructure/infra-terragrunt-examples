@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "infra-terragrunt-examples"
-version = "0.0.0"  # This can be replaced dynamically during build if necessary
+version = "0.7.1"  # This can be replaced dynamically during build if necessary
 description = "Generate example terragrunt.hcl files for the terraform modules from the variable descriptions"
 authors = [{ name = "NextGen Infrastructure", email = "8377544+ADobrodey@users.noreply.github.com" }]
 license = { text = "MIT License" }

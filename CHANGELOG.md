@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.1](https://github.com/next-gen-infrastructure/infra-terragrunt-examples/compare/v0.7.0...v0.7.1) (2025-02-21)
+
+
+### Bug Fixes
+
+* pyproject ([b7f3b9f](https://github.com/next-gen-infrastructure/infra-terragrunt-examples/commit/b7f3b9fed3de7976f325eb70e584731bc97709a3))
+
 ## [0.7.0](https://github.com/next-gen-infrastructure/infra-terragrunt-examples/compare/v0.6.0...v0.7.0) (2025-02-21)
 
 
