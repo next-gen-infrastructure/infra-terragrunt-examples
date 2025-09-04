@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.7.1](https://github.com/next-gen-infrastructure/infra-terragrunt-examples/compare/v0.7.0...v0.7.1) (2025-09-04)
+
+
+### Bug Fixes
+
+* pyproject ([717dac1](https://github.com/next-gen-infrastructure/infra-terragrunt-examples/commit/717dac1a4427474da1110d1a468bfc70c0d36e36))
+* pyproject ([b7f3b9f](https://github.com/next-gen-infrastructure/infra-terragrunt-examples/commit/b7f3b9fed3de7976f325eb70e584731bc97709a3))
+* update resource naming convention in processvariables.py ([ed3ca84](https://github.com/next-gen-infrastructure/infra-terragrunt-examples/commit/ed3ca84a2ffa8813b508d8d71e0b14fed46c2d1a))
+* update resource naming convention in processvariables.py ([82b5344](https://github.com/next-gen-infrastructure/infra-terragrunt-examples/commit/82b53444353a72c9fbe8def516ea257104335654))
+
 ## [0.7.0](https://github.com/next-gen-infrastructure/infra-terragrunt-examples/compare/v0.6.0...v0.7.0) (2025-02-21)
 
 
