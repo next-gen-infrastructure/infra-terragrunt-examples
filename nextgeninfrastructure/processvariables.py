@@ -119,7 +119,7 @@ def process_examples(
             # * purpose: Purpose of the resource. E.g. "upload-images"
             # * separator: Name separator (defaults "-")
             #
-            # Resource name will be <org>-<product>-<purpose>-<env>( | -<type of resource>)
+            Resource name will be <project>-<env>-<purpose>-(|<type of resource>)
             #
             # Example:
             # * name = {{
