@@ -127,10 +127,10 @@ def process_examples(
             #   separator = "_"
             # }}
             {SEPARATOR}
-            name = {{
-              purpose =
-              # separator = "-"
-            }}
+            # name = {{
+            #   purpose = ""
+            #   separator = "-"
+            # }}
 
             {SEPARATOR}
             # Map of the custom resource tags (defaults {{}})
