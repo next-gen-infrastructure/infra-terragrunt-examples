@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.1](https://github.com/next-gen-infrastructure/infra-terragrunt-examples/compare/v0.8.0...v0.8.1) (2025-09-04)
+
+
+### Bug Fixes
+
+* exclude .terragrunt-cache directory from module collection ([b2b61cb](https://github.com/next-gen-infrastructure/infra-terragrunt-examples/commit/b2b61cb8731eb7d292b83e8ab170f9f85473983f))
+
 ## [0.8.0](https://github.com/next-gen-infrastructure/infra-terragrunt-examples/compare/v0.7.1...v0.8.0) (2025-09-04)
 
 
