@@ -14,7 +14,7 @@ from nextgeninfrastructure.processvariables import process_examples
 def collect_modules(repository: str) -> List[str]:
     modules = []
     for root, dirs, files in os.walk(repository):
-        if ".terraform" not in root:
+        if ".terraform" not in root and ".terragrunt-cache" not in root:
             for d in dirs:
                 if os.path.exists(
                     os.path.join(root, d, "variables.tf")
