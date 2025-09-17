@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.2](https://github.com/next-gen-infrastructure/infra-terragrunt-examples/compare/v0.8.1...v0.8.2) (2025-09-17)
+
+
+### Bug Fixes
+
+* Commenting ([f32463d](https://github.com/next-gen-infrastructure/infra-terragrunt-examples/commit/f32463d45af5e792a552bc6f0dfac8d7ed78c45e))
+
 ## [0.8.1](https://github.com/next-gen-infrastructure/infra-terragrunt-examples/compare/v0.8.0...v0.8.1) (2025-09-04)
 
 
